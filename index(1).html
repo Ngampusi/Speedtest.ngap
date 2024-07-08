@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #start-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Speed Test</h1>
+        <button id="start-button">Start Test</button>
+        <div id="results">
+            <p>Download: <span id="download-speed">0</span> Mbps</p>
+            <p>Upload: <span id="upload-speed">0</span> Mbps</p>
+            <p>Ping: <span id="ping">0</span> ms</p>
+        </div>
+    </div>
+
+    <script>
+        const startButton = document.getElementById('start-button');
+        const downloadSpeedElement = document.getElementById('download-speed');
+        const uploadSpeedElement = document.getElementById('upload-speed');
+        const pingElement = document.getElementById('ping');
+
+        async function measureDownloadSpeed() {
+            const image = new Image();
+            const startTime = performance.now();
+
+            return new Promise((resolve, reject) => {
+                image.onload = () => {
+                    const endTime = performance.now();
+                    const duration = (endTime - startTime) / 1000; // in seconds
+                    const imageSize = 5000000 * 8; // 5MB image in bits
+                    const speedBps = imageSize / duration;
+                    const speedMbps = speedBps / 1024 / 1024;
+                    resolve(speedMbps);
+                };
+
+                image.onerror = (err) => reject(err);
+                image.src = `https://via.placeholder.com/5000x5000?random=${Math.random()}`;
+            });
+        }
+
+        async function measurePing() {
+            const startTime = performance.now();
+            await fetch('https://www.google.com', { mode: 'no-cors' });
+            const endTime = performance.now();
+            return endTime - startTime;
+        }
+
+        async function startSpeedTest() {
+            try {
+                const downloadSpeed = await measureDownloadSpeed();
+                const ping = await measurePing();
+                const uploadSpeed = 0; // Placeholder, need specific implementation
+
+                downloadSpeedElement.textContent = downloadSpeed.toFixed(2);
+                uploadSpeedElement.textContent = uploadSpeed.toFixed(2);
+                pingElement.textContent = ping.toFixed(2);
+            } catch (error) {
+                console.error('Error during speed test:', error);
+            }
+        }
+
+        startButton.addEventListener('click', startSpeedTest);
+    </script>
+</body>
+</html>
